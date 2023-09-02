@@ -13,10 +13,11 @@ mod data;
 fn main() {
     App::new()
         .add_plugins((
-            DefaultPlugins,
+            DefaultPlugins.set(ImagePlugin::default_nearest()),
             WorldInspectorPlugin::default(),
             CameraPlugin,
         ))
+        .insert_resource(Msaa::Off)
         .add_systems(Startup, setup)
         .run();
 }
@@ -28,9 +29,7 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     let custom_texture_handle: Handle<Image> = asset_server.load("spritesheet_tiles.png");
-    let mut mesh = Chunk::default();
-    mesh.populate_voxel_map();
-    mesh.create_mesh_data();
+    let mesh = Chunk::new();
     let cube_mesh_handle: Handle<Mesh> = meshes.add(mesh.build());
 
     commands.spawn((PbrBundle {
@@ -39,7 +38,8 @@ fn setup(
             base_color_texture: Some(custom_texture_handle),
             ..default()
         }),
-        ..default()
+        transform: Transform::from_xyz(16.0, 0.0, 0.0),
+        ..Default::default()
     },));
 
     commands.insert_resource(AmbientLight {

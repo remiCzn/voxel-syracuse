@@ -2,8 +2,8 @@ use bevy::prelude::{Vec2, Vec3};
 
 pub const CHUNK_WIDTH: i32 = 5;
 pub const CHUNK_HEIGHT: i32 = 15;
-pub const TEXTURE_ATLAS_WIDTH: i32 = 9;
-pub const TEXTURE_ATLAS_HEIGHT: i32 = 10;
+pub const TEXTURE_ATLAS_WIDTH: f32 = 9.0;
+pub const TEXTURE_ATLAS_HEIGHT: f32 = 10.0;
 
 pub const VOXEL_VERTS: [Vec3; 8] = [
     Vec3::new(0.0, 0.0, 0.0),
@@ -45,11 +45,8 @@ pub const VOXEL_TRIS: [[usize; 4]; 6] = [
 ];
 
 pub const VOXEL_UVS: [Vec2; 4] = [
-    Vec2::new(
-        1.0 / TEXTURE_ATLAS_WIDTH as f32,
-        1.0 / TEXTURE_ATLAS_HEIGHT as f32,
-    ),
-    Vec2::new(1.0 / TEXTURE_ATLAS_WIDTH as f32, 0.0),
-    Vec2::new(0.0, 1.0 / TEXTURE_ATLAS_HEIGHT as f32),
+    Vec2::new(1.0 / TEXTURE_ATLAS_WIDTH, 1.0 / TEXTURE_ATLAS_HEIGHT),
+    Vec2::new(1.0 / TEXTURE_ATLAS_WIDTH, 0.0),
+    Vec2::new(0.0, 1.0 / TEXTURE_ATLAS_HEIGHT),
     Vec2::new(0.0, 0.0),
 ];

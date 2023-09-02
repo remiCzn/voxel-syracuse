@@ -17,4 +17,10 @@ pub const DIRT: BlockType = BlockType {
     textures: [52, 52, 52, 52, 52, 52],
 };
 
-pub const BLOCK_TYPES: [BlockType; 2] = [STONE, DIRT];
+pub const GRASS: BlockType = BlockType {
+    name: "Grass",
+    is_solid: true,
+    textures: [43, 43, 15, 52, 43, 43],
+};
+
+pub const BLOCK_TYPES: [BlockType; 3] = [STONE, DIRT, GRASS];

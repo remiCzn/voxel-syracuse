@@ -102,7 +102,7 @@ fn player_look(
     mut state: ResMut<InputState>,
     mut query: Query<&mut Transform, With<Camera3d>>,
 ) {
-    let sensitivity = 0.00012;
+    let sensitivity = 0.00010;
     if let Ok(window) = primary_window.get_single() {
         for mut transform in query.iter_mut() {
             for ev in state.reader_motion.iter(&motion) {

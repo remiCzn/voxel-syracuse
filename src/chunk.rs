@@ -16,6 +16,13 @@ pub struct Chunk {
 }
 
 impl Chunk {
+    pub fn new() -> Self {
+        let mut mesh = Self::default();
+        mesh.populate_voxel_map();
+        mesh.create_mesh_data();
+        mesh
+    }
+
     pub fn build(&self) -> Mesh {
         let mut cube_mesh = Mesh::new(PrimitiveTopology::TriangleList);
         cube_mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, self.vertices.clone());
@@ -31,6 +38,8 @@ impl Chunk {
                 for z in 0..CHUNK_WIDTH as usize {
                     if y < 2 {
                         self.voxel_map[x][y][z] = 0;
+                    } else if y == CHUNK_HEIGHT as usize - 1 {
+                        self.voxel_map[x][y][z] = 2
                     } else {
                         self.voxel_map[x][y][z] = 1;
                     }
@@ -78,14 +87,14 @@ impl Chunk {
                     .push((pos + VOXEL_VERTS[VOXEL_TRIS[p][3]]).to_array());
 
                 let text_id = BLOCK_TYPES[block_id].textures[p];
-                if text_id > TEXTURE_ATLAS_WIDTH * TEXTURE_ATLAS_HEIGHT {
+                if text_id > (TEXTURE_ATLAS_WIDTH * TEXTURE_ATLAS_HEIGHT) as i32 {
                     panic!("The texture id is not defined");
                 }
-                let text_y = text_id / TEXTURE_ATLAS_WIDTH;
-                let text_x = text_id - (text_y * TEXTURE_ATLAS_WIDTH);
+                let text_y = text_id / TEXTURE_ATLAS_WIDTH as i32;
+                let text_x = text_id - (text_y * TEXTURE_ATLAS_WIDTH as i32);
                 let coords = Vec2::new(
-                    (text_x as f32) / TEXTURE_ATLAS_WIDTH as f32,
-                    (text_y as f32) / TEXTURE_ATLAS_HEIGHT as f32,
+                    (text_x as f32) / TEXTURE_ATLAS_WIDTH,
+                    (text_y as f32) / TEXTURE_ATLAS_HEIGHT,
                 );
 
                 self.uvs.push((coords + VOXEL_UVS[0]).to_array());
