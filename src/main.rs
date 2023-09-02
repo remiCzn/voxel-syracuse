@@ -2,15 +2,21 @@ use std::f32::consts::PI;
 
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use camera::CameraPlugin;
 use chunk::Chunk;
 
 mod block;
+mod camera;
 mod chunk;
 mod data;
 
 fn main() {
     App::new()
-        .add_plugins((DefaultPlugins, WorldInspectorPlugin::default()))
+        .add_plugins((
+            DefaultPlugins,
+            WorldInspectorPlugin::default(),
+            CameraPlugin,
+        ))
         .add_systems(Startup, setup)
         .run();
 }
@@ -36,14 +42,6 @@ fn setup(
         ..default()
     },));
 
-    let camera_and_light_transform =
-        Transform::from_xyz(15.0, 15.0, 15.0).looking_at(Vec3::ZERO, Vec3::Y);
-
-    // Camera in 3D space.
-    commands
-        .spawn(Camera3dBundle::default())
-        .insert(camera_and_light_transform);
-
     commands.insert_resource(AmbientLight {
         color: Color::WHITE,
         brightness: 0.4,
@@ -56,7 +54,7 @@ fn setup(
             ..default()
         },
         transform: Transform {
-            translation: Vec3::new(0.0, 2.0, 0.0),
+            translation: Vec3::new(0.0, 100.0, 0.0),
             rotation: Quat::from_rotation_x(-PI / 4.),
             ..default()
         },
