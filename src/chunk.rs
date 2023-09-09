@@ -7,6 +7,7 @@ use crate::{block::BLOCK_TYPES, data::*};
 
 #[derive(Default)]
 pub struct Chunk {
+    coords: Vec2,
     vertices: Vec<[f32; 3]>,
     uvs: Vec<[f32; 2]>,
     normals: Vec<[f32; 3]>,
@@ -16,8 +17,11 @@ pub struct Chunk {
 }
 
 impl Chunk {
-    pub fn new() -> Self {
-        let mut mesh = Self::default();
+    pub fn new(coords: Vec2) -> Self {
+        let mut mesh = Self {
+            coords,
+            ..Default::default()
+        };
         mesh.populate_voxel_map();
         mesh.create_mesh_data();
         mesh
@@ -74,17 +78,22 @@ impl Chunk {
     }
 
     fn add_voxel_to_chunk(&mut self, pos: Vec3) {
+        let chunk_coords = Vec3 {
+            x: self.coords.x * CHUNK_WIDTH as f32,
+            y: 0.0,
+            z: self.coords.y * CHUNK_WIDTH as f32,
+        };
         for p in 0..6 {
             if !self.check_voxel(pos + VOXEL_FACE_CHECKS[p]) {
                 let block_id = self.voxel_map[pos.x as usize][pos.y as usize][pos.z as usize];
                 self.vertices
-                    .push((pos + VOXEL_VERTS[VOXEL_TRIS[p][0]]).to_array());
+                    .push((chunk_coords + pos + VOXEL_VERTS[VOXEL_TRIS[p][0]]).to_array());
                 self.vertices
-                    .push((pos + VOXEL_VERTS[VOXEL_TRIS[p][1]]).to_array());
+                    .push((chunk_coords + pos + VOXEL_VERTS[VOXEL_TRIS[p][1]]).to_array());
                 self.vertices
-                    .push((pos + VOXEL_VERTS[VOXEL_TRIS[p][2]]).to_array());
+                    .push((chunk_coords + pos + VOXEL_VERTS[VOXEL_TRIS[p][2]]).to_array());
                 self.vertices
-                    .push((pos + VOXEL_VERTS[VOXEL_TRIS[p][3]]).to_array());
+                    .push((chunk_coords + pos + VOXEL_VERTS[VOXEL_TRIS[p][3]]).to_array());
 
                 let text_id = BLOCK_TYPES[block_id].textures[p];
                 if text_id > (TEXTURE_ATLAS_WIDTH * TEXTURE_ATLAS_HEIGHT) as i32 {
