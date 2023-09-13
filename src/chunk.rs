@@ -5,8 +5,9 @@ use bevy::{
 
 use crate::{block::BLOCK_TYPES, data::*};
 
-#[derive(Default)]
+#[derive(Default, Component)]
 pub struct Chunk {
+    active: bool,
     coords: Vec2,
     vertices: Vec<[f32; 3]>,
     uvs: Vec<[f32; 2]>,
@@ -29,10 +30,12 @@ impl Chunk {
 
     pub fn build(&self) -> Mesh {
         let mut cube_mesh = Mesh::new(PrimitiveTopology::TriangleList);
-        cube_mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, self.vertices.clone());
-        cube_mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, self.uvs.clone());
-        cube_mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, self.normals.clone());
-        cube_mesh.set_indices(Some(Indices::U32(self.triangles.clone())));
+        if self.active {
+            cube_mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, self.vertices.clone());
+            cube_mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, self.uvs.clone());
+            cube_mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, self.normals.clone());
+            cube_mesh.set_indices(Some(Indices::U32(self.triangles.clone())));
+        }
         cube_mesh
     }
 
@@ -67,14 +70,21 @@ impl Chunk {
         let y = pos.y.floor() as i32;
         let z = pos.z.floor() as i32;
 
+        if !self.is_voxel_in_chunk(x, y, z) {
+            return false;
+        }
+
+        BLOCK_TYPES[self.voxel_map[x as usize][y as usize][z as usize]].is_solid
+    }
+
+    fn is_voxel_in_chunk(&self, x: i32, y: i32, z: i32) -> bool {
         if !(0..=CHUNK_WIDTH - 1).contains(&x)
             || !(0..=CHUNK_HEIGHT - 1).contains(&y)
             || !(0..=CHUNK_WIDTH - 1).contains(&z)
         {
             return false;
         }
-
-        BLOCK_TYPES[self.voxel_map[x as usize][y as usize][z as usize]].is_solid
+        true
     }
 
     fn add_voxel_to_chunk(&mut self, pos: Vec3) {

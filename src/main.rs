@@ -1,14 +1,18 @@
-use std::f32::consts::PI;
-
-use bevy::prelude::*;
+use bevy::{
+    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
+    prelude::*,
+};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use camera::CameraPlugin;
 use chunk::Chunk;
+use data::WORLD_SIZE_IN_CHUNKS;
+use lights::LightPlugin;
 
 mod block;
 mod camera;
 mod chunk;
 mod data;
+mod lights;
 
 fn main() {
     App::new()
@@ -16,6 +20,9 @@ fn main() {
             DefaultPlugins.set(ImagePlugin::default_nearest()),
             WorldInspectorPlugin::default(),
             CameraPlugin,
+            LightPlugin,
+            LogDiagnosticsPlugin::default(),
+            FrameTimeDiagnosticsPlugin::default(),
         ))
         .insert_resource(Msaa::Off)
         .add_systems(Startup, setup)
@@ -28,8 +35,8 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    for x in -3..3 {
-        for z in -3..3 {
+    for x in -WORLD_SIZE_IN_CHUNKS..WORLD_SIZE_IN_CHUNKS {
+        for z in -WORLD_SIZE_IN_CHUNKS..WORLD_SIZE_IN_CHUNKS {
             let custom_texture_handle: Handle<Image> = asset_server.load("spritesheet_tiles.png");
             let mesh = Chunk::new(Vec2 {
                 x: x as f32,
@@ -51,23 +58,4 @@ fn setup(
             ));
         }
     }
-
-    commands.insert_resource(AmbientLight {
-        color: Color::WHITE,
-        brightness: 0.4,
-    });
-
-    commands.spawn(DirectionalLightBundle {
-        directional_light: DirectionalLight {
-            color: Color::YELLOW,
-            shadows_enabled: true,
-            ..default()
-        },
-        transform: Transform {
-            translation: Vec3::new(0.0, 100.0, 0.0),
-            rotation: Quat::from_rotation_x(-PI / 4.),
-            ..default()
-        },
-        ..default()
-    });
 }
