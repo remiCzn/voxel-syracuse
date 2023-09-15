@@ -7,8 +7,8 @@ use crate::{block::BLOCK_TYPES, data::*};
 
 #[derive(Default, Component)]
 pub struct Chunk {
-    active: bool,
-    coords: Vec2,
+    pub active: bool,
+    pub coords: Vec2,
     vertices: Vec<[f32; 3]>,
     uvs: Vec<[f32; 2]>,
     normals: Vec<[f32; 3]>,
@@ -28,14 +28,12 @@ impl Chunk {
         mesh
     }
 
-    pub fn build(&self) -> Mesh {
+    pub fn build(&mut self) -> Mesh {
         let mut cube_mesh = Mesh::new(PrimitiveTopology::TriangleList);
-        if self.active {
-            cube_mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, self.vertices.clone());
-            cube_mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, self.uvs.clone());
-            cube_mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, self.normals.clone());
-            cube_mesh.set_indices(Some(Indices::U32(self.triangles.clone())));
-        }
+        cube_mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, self.vertices.clone());
+        cube_mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, self.uvs.clone());
+        cube_mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, self.normals.clone());
+        cube_mesh.set_indices(Some(Indices::U32(self.triangles.clone())));
         cube_mesh
     }
 

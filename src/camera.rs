@@ -5,6 +5,8 @@ use bevy::{
     window::{CursorGrabMode, PrimaryWindow},
 };
 
+use crate::data::{CHUNK_HEIGHT, WORLD_SIZE_IN_BLOCKS};
+
 pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
@@ -17,7 +19,12 @@ impl Plugin for CameraPlugin {
 
 fn setup_camera(mut commands: Commands) {
     commands.spawn((Camera3dBundle {
-        transform: Transform::from_xyz(-2.0, 5.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+        transform: Transform::from_xyz(
+            (WORLD_SIZE_IN_BLOCKS / 2) as f32,
+            (WORLD_SIZE_IN_BLOCKS / 2) as f32,
+            CHUNK_HEIGHT as f32,
+        )
+        .looking_at(Vec3::ZERO, Vec3::Y),
         ..Default::default()
     },));
 }
