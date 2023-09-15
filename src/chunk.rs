@@ -12,7 +12,7 @@ pub struct ChunkDatas {
     pub active: Vec<(i32, i32)>,
 }
 
-#[derive(Default, Debug)]
+#[derive(Debug)]
 pub struct Chunk {
     pub active: bool,
     pub entity_id: Option<Entity>,
@@ -29,7 +29,14 @@ impl Chunk {
     pub fn new(coords: Vec2) -> Self {
         let mut mesh = Self {
             coords,
-            ..Default::default()
+            active: false,
+            entity_id: None,
+            vertices: vec![],
+            uvs: vec![],
+            normals: vec![],
+            triangles: vec![],
+            index: 0,
+            voxel_map: [[[0; CHUNK_WIDTH as usize]; CHUNK_HEIGHT as usize]; CHUNK_WIDTH as usize],
         };
         mesh.populate_voxel_map();
         mesh.create_mesh_data();
@@ -50,7 +57,7 @@ impl Chunk {
             for z in 0..CHUNK_WIDTH as usize {
                 let r_x = x as f64 + self.coords.x as f64 * CHUNK_WIDTH as f64;
                 let r_z = z as f64 + self.coords.y as f64 * CHUNK_WIDTH as f64;
-                let perlin = get_perlin_value(r_x, r_z, 10.0, 5.0, 15.0) as usize;
+                let perlin = get_perlin_value(r_x, r_z, 10.0, 5.0, 15.0, 0) as usize;
                 for y in 0..CHUNK_HEIGHT as usize {
                     if y < 2 {
                         self.voxel_map[x][y][z] = 1;
@@ -58,8 +65,6 @@ impl Chunk {
                         self.voxel_map[x][y][z] = 3;
                     } else if y >= 2 && y < perlin - 1 {
                         self.voxel_map[x][y][z] = 2;
-                    } else {
-                        self.voxel_map[x][y][z] = 0;
                     }
                 }
             }
