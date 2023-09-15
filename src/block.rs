@@ -5,6 +5,12 @@ pub struct BlockType {
     pub textures: [i32; 6],
 }
 
+pub const AIR: BlockType = BlockType {
+    name: "Air",
+    is_solid: false,
+    textures: [53, 53, 53, 53, 53, 53],
+};
+
 pub const STONE: BlockType = BlockType {
     name: "Stone",
     is_solid: true,
@@ -23,4 +29,4 @@ pub const GRASS: BlockType = BlockType {
     textures: [43, 43, 15, 52, 43, 43],
 };
 
-pub const BLOCK_TYPES: [BlockType; 3] = [STONE, DIRT, GRASS];
+pub const BLOCK_TYPES: [BlockType; 4] = [AIR, STONE, DIRT, GRASS];

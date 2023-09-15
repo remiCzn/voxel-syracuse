@@ -4,7 +4,7 @@ use bevy::{
     utils::HashMap,
 };
 
-use crate::{block::BLOCK_TYPES, data::*};
+use crate::{block::BLOCK_TYPES, data::*, noise::get_perlin_value};
 
 #[derive(Default, Debug, Resource)]
 pub struct ChunkDatas {
@@ -46,15 +46,20 @@ impl Chunk {
     }
 
     pub fn populate_voxel_map(&mut self) {
-        for y in 0..CHUNK_HEIGHT as usize {
-            for x in 0..CHUNK_WIDTH as usize {
-                for z in 0..CHUNK_WIDTH as usize {
+        for x in 0..CHUNK_WIDTH as usize {
+            for z in 0..CHUNK_WIDTH as usize {
+                let r_x = x as f64 + self.coords.x as f64 * CHUNK_WIDTH as f64;
+                let r_z = z as f64 + self.coords.y as f64 * CHUNK_WIDTH as f64;
+                let perlin = get_perlin_value(r_x, r_z, 10.0, 5.0, 15.0) as usize;
+                for y in 0..CHUNK_HEIGHT as usize {
                     if y < 2 {
-                        self.voxel_map[x][y][z] = 0;
-                    } else if y == CHUNK_HEIGHT as usize - 1 {
-                        self.voxel_map[x][y][z] = 2
-                    } else {
                         self.voxel_map[x][y][z] = 1;
+                    } else if y == perlin - 1 {
+                        self.voxel_map[x][y][z] = 3;
+                    } else if y >= 2 && y < perlin - 1 {
+                        self.voxel_map[x][y][z] = 2;
+                    } else {
+                        self.voxel_map[x][y][z] = 0;
                     }
                 }
             }
@@ -100,7 +105,7 @@ impl Chunk {
             z: self.coords.y * CHUNK_WIDTH as f32,
         };
         for p in 0..6 {
-            if !self.check_voxel(pos + VOXEL_FACE_CHECKS[p]) {
+            if self.check_voxel(pos) && !self.check_voxel(pos + VOXEL_FACE_CHECKS[p]) {
                 let block_id = self.voxel_map[pos.x as usize][pos.y as usize][pos.z as usize];
                 self.vertices
                     .push((chunk_coords + pos + VOXEL_VERTS[VOXEL_TRIS[p][0]]).to_array());

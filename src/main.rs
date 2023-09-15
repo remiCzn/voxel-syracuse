@@ -15,6 +15,7 @@ mod camera;
 mod chunk;
 mod data;
 mod lights;
+mod noise;
 
 fn main() {
     App::new()
