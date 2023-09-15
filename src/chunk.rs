@@ -27,7 +27,7 @@ pub struct Chunk {
 
 impl Chunk {
     pub fn new(coords: Vec2) -> Self {
-        let mut mesh = Self {
+        let mut chunk = Self {
             coords,
             active: false,
             entity_id: None,
@@ -38,9 +38,9 @@ impl Chunk {
             index: 0,
             voxel_map: [[[0; CHUNK_WIDTH as usize]; CHUNK_HEIGHT as usize]; CHUNK_WIDTH as usize],
         };
-        mesh.populate_voxel_map();
-        mesh.create_mesh_data();
-        mesh
+        chunk.populate_voxel_map();
+        chunk.create_mesh_data();
+        chunk
     }
 
     pub fn build(&mut self) -> Mesh {
@@ -57,7 +57,9 @@ impl Chunk {
             for z in 0..CHUNK_WIDTH as usize {
                 let r_x = x as f64 + self.coords.x as f64 * CHUNK_WIDTH as f64;
                 let r_z = z as f64 + self.coords.y as f64 * CHUNK_WIDTH as f64;
-                let perlin = get_perlin_value(r_x, r_z, 10.0, 5.0, 15.0, 0) as usize;
+                let perlin_l1 = get_perlin_value(r_x, r_z, 10.0, 0.0, 5.0, 15.0, 0) as usize;
+                let perlin_l2 = get_perlin_value(r_x, r_z, 5.0, 0.0, 2.0, 45.0, 0) as usize;
+                let perlin = perlin_l1 + perlin_l2;
                 for y in 0..CHUNK_HEIGHT as usize {
                     if y < 2 {
                         self.voxel_map[x][y][z] = 1;

@@ -55,7 +55,6 @@ fn spawn_chunks(
 
     for (x, z) in chunks.active.clone() {
         if !range_x.contains(&x) || !range_z.contains(&z) {
-            println!("Despawn {}, {}", x, z);
             if let Some(chunk) = chunks.datas.get_mut(&(x, z)) {
                 chunk.active = false;
                 if let Some(ent) = chunk.entity_id {
