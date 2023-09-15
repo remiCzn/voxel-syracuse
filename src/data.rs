@@ -1,11 +1,11 @@
 use bevy::prelude::{Vec2, Vec3};
 
-pub const CHUNK_WIDTH: i32 = 5;
+pub const CHUNK_WIDTH: i32 = 16;
 pub const CHUNK_HEIGHT: i32 = 15;
 pub const TEXTURE_ATLAS_WIDTH: f32 = 9.0;
 pub const TEXTURE_ATLAS_HEIGHT: f32 = 10.0;
 pub const WORLD_SIZE_IN_CHUNKS: i32 = 40;
-pub const VIEW_DISTANCE_IN_CHUNKS: i32 = 8;
+pub const VIEW_DISTANCE_IN_CHUNKS: i32 = 3;
 pub const WORLD_SIZE_IN_BLOCKS: i32 = WORLD_SIZE_IN_CHUNKS * CHUNK_WIDTH;
 
 pub const VOXEL_VERTS: [Vec3; 8] = [

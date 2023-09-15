@@ -21,8 +21,8 @@ fn setup_camera(mut commands: Commands) {
     commands.spawn((Camera3dBundle {
         transform: Transform::from_xyz(
             (WORLD_SIZE_IN_BLOCKS / 2) as f32,
+            CHUNK_HEIGHT as f32 + 2.0,
             (WORLD_SIZE_IN_BLOCKS / 2) as f32,
-            CHUNK_HEIGHT as f32,
         )
         .looking_at(Vec3::ZERO, Vec3::Y),
         ..Default::default()

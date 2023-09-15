@@ -1,13 +1,21 @@
 use bevy::{
     prelude::*,
     render::{mesh::Indices, render_resource::PrimitiveTopology},
+    utils::HashMap,
 };
 
 use crate::{block::BLOCK_TYPES, data::*};
 
-#[derive(Default, Component)]
+#[derive(Default, Debug, Resource)]
+pub struct ChunkDatas {
+    pub datas: HashMap<(i32, i32), Chunk>,
+    pub active: Vec<(i32, i32)>,
+}
+
+#[derive(Default, Debug)]
 pub struct Chunk {
     pub active: bool,
+    pub entity_id: Option<Entity>,
     pub coords: Vec2,
     vertices: Vec<[f32; 3]>,
     uvs: Vec<[f32; 2]>,

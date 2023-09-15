@@ -6,8 +6,8 @@ use bevy::{
 };
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use camera::CameraPlugin;
-use chunk::Chunk;
-use data::{CHUNK_WIDTH, VIEW_DISTANCE_IN_CHUNKS, WORLD_SIZE_IN_CHUNKS};
+use chunk::{Chunk, ChunkDatas};
+use data::{CHUNK_WIDTH, VIEW_DISTANCE_IN_CHUNKS};
 use lights::LightPlugin;
 
 mod block;
@@ -23,27 +23,13 @@ fn main() {
             WorldInspectorPlugin::default(),
             CameraPlugin,
             LightPlugin,
-            // LogDiagnosticsPlugin::default(),
-            // FrameTimeDiagnosticsPlugin::default(),
+            LogDiagnosticsPlugin::default(),
+            FrameTimeDiagnosticsPlugin::default(),
         ))
+        .insert_resource(ChunkDatas::default())
         .insert_resource(Msaa::Off)
-        .add_systems(Startup, setup_chunks)
         .add_systems(Update, spawn_chunks)
         .run();
-}
-
-fn setup_chunks(mut commands: Commands) {
-    for x in 0..WORLD_SIZE_IN_CHUNKS {
-        for z in 0..WORLD_SIZE_IN_CHUNKS {
-            commands.spawn((
-                Chunk::new(Vec2 {
-                    x: x as f32,
-                    y: z as f32,
-                }),
-                Name::new(format!("ChunkData ({},{})", x, z)),
-            ));
-        }
-    }
 }
 
 fn spawn_chunks(
@@ -51,7 +37,7 @@ fn spawn_chunks(
     asset_server: ResMut<AssetServer>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut chunk_q: Query<&mut Chunk>,
+    mut chunks: ResMut<ChunkDatas>,
     cameras: Query<&Transform, With<Camera3d>>,
 ) {
     let player_transform = cameras
@@ -61,30 +47,59 @@ fn spawn_chunks(
         .as_ivec3();
     let custom_texture_handle: Handle<Image> = asset_server.load("spritesheet_tiles.png");
 
-    let range_x = player_transform.x - VIEW_DISTANCE_IN_CHUNKS / 2
-        ..player_transform.x + VIEW_DISTANCE_IN_CHUNKS / 2;
-    let range_z = player_transform.z - VIEW_DISTANCE_IN_CHUNKS / 2
-        ..player_transform.z + VIEW_DISTANCE_IN_CHUNKS / 2;
+    let range_x =
+        player_transform.x - VIEW_DISTANCE_IN_CHUNKS..player_transform.x + VIEW_DISTANCE_IN_CHUNKS;
+    let range_z =
+        player_transform.z - VIEW_DISTANCE_IN_CHUNKS..player_transform.z + VIEW_DISTANCE_IN_CHUNKS;
 
-    for mut chunk in chunk_q.iter_mut() {
-        let x = chunk.coords.x as i32;
-        let z = chunk.coords.y as i32;
-        if range_x.contains(&x) && range_z.contains(&z) && !chunk.active {
-            let cube_mesh_handle: Handle<Mesh> = meshes.add(chunk.build());
+    for (x, z) in chunks.active.clone() {
+        if !range_x.contains(&x) || !range_z.contains(&z) {
+            println!("Despawn {}, {}", x, z);
+            if let Some(chunk) = chunks.datas.get_mut(&(x, z)) {
+                chunk.active = false;
+                if let Some(ent) = chunk.entity_id {
+                    commands.entity(ent).despawn_recursive();
+                }
+            }
+        }
+    }
 
-            println!("Let's spawn {x},{z}");
-            commands.spawn((
-                PbrBundle {
-                    mesh: cube_mesh_handle,
-                    material: materials.add(StandardMaterial {
-                        base_color_texture: Some(custom_texture_handle.clone()),
-                        ..default()
-                    }),
-                    ..Default::default()
-                },
-                Name::new(format!("Chunk ({},{})", x, z)),
-            ));
-            chunk.active = true;
+    chunks.active.clear();
+
+    for x in range_x {
+        for z in range_z.clone() {
+            chunks.active.push((x, z));
+            let chunk = {
+                if !chunks.datas.contains_key(&(x, z)) {
+                    chunks.datas.insert(
+                        (x, z),
+                        Chunk::new(Vec2 {
+                            x: x as f32,
+                            y: z as f32,
+                        }),
+                    );
+                }
+                chunks.datas.get_mut(&(x, z)).unwrap()
+            };
+            if !chunk.active {
+                let cube_mesh_handle: Handle<Mesh> = meshes.add(chunk.build());
+
+                let ent = commands
+                    .spawn((
+                        PbrBundle {
+                            mesh: cube_mesh_handle,
+                            material: materials.add(StandardMaterial {
+                                base_color_texture: Some(custom_texture_handle.clone()),
+                                ..default()
+                            }),
+                            ..Default::default()
+                        },
+                        Name::new(format!("Chunk ({},{})", x, z)),
+                    ))
+                    .id();
+                chunk.entity_id = Some(ent);
+                chunk.active = true;
+            }
         }
     }
 }
