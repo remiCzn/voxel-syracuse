@@ -23,11 +23,12 @@ fn setup_lights(mut commands: Commands) {
         directional_light: DirectionalLight {
             color: Color::YELLOW,
             shadows_enabled: true,
+            illuminance: 10000.0,
             ..default()
         },
         transform: Transform {
             translation: Vec3::new(0.0, 100.0, 0.0),
-            rotation: Quat::from_rotation_x(-PI / 4.),
+            rotation: Quat::from_rotation_x(-PI / 3.),
             ..default()
         },
         ..default()

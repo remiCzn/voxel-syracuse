@@ -90,6 +90,8 @@ fn spawn_chunks(
                             mesh: cube_mesh_handle,
                             material: materials.add(StandardMaterial {
                                 base_color_texture: Some(custom_texture_handle.clone()),
+                                reflectance: 0.0,
+                                perceptual_roughness: 1.0,
                                 ..default()
                             }),
                             ..Default::default()
